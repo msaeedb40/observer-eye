@@ -1,0 +1,11 @@
+django
+pytest
+psycopg2-binary
+redis
+numpy
+pandas
+structlog
+scikit-learn
+opentelemetry-sdk
+opentelemetry-api 
+dash

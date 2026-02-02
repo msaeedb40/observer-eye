@@ -1,0 +1,44 @@
+# Observer-Eye Middleware Dependencies
+# FastAPI Core
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+starlette>=0.36.0
+
+# HTTP Client for Backend Communication
+httpx>=0.26.0
+
+# Data Validation
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Caching
+redis>=5.0.1
+aioredis>=2.0.1
+
+# Streaming
+websockets>=12.0
+sse-starlette>=2.0.0
+
+# Telemetry (4 Pillars of Observability)
+opentelemetry-api>=1.22.0
+opentelemetry-sdk>=1.22.0
+opentelemetry-instrumentation-fastapi>=0.43b0
+opentelemetry-exporter-otlp>=1.22.0
+prometheus-client>=0.19.0
+
+# Logging
+structlog>=24.1.0
+python-json-logger>=2.0.0
+
+# Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+python-multipart>=0.0.6
+
+# Testing
+pytest>=8.0.0
+pytest-asyncio>=0.23.0
+httpx>=0.26.0
+
+# Utilities
+python-dotenv>=1.0.0
