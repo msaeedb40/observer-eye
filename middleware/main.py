@@ -124,8 +124,17 @@ from performance.router import router as performance_router
 from error_handling.router import router as error_handling_router
 from caching.router import router as caching_router
 from streaming.router import router as streaming_router
-from telemetry.router import router as telemetry_router
 from data_processing.router import router as data_processing_router
+from analytics.router import router as analytics_router
+from netmetrics.router import router as netmetrics_router
+from systemmetrics.router import router as systemmetrics_router
+from security.router import router as security_router
+from insights.router import router as insights_router
+from grail.router import router as grail_router
+from notification.router import router as notification_router
+from integration.router import router as integration_router
+from identity.router import router as identity_router
+from traffic.router import router as traffic_router
 from testing.router import router as testing_router
 
 # Include routers with prefixes
@@ -133,8 +142,17 @@ app.include_router(performance_router, prefix="/api/v1/performance", tags=["Perf
 app.include_router(error_handling_router, prefix="/api/v1/errors", tags=["Error Handling"])
 app.include_router(caching_router, prefix="/api/v1/cache", tags=["Caching"])
 app.include_router(streaming_router, prefix="/api/v1/stream", tags=["Streaming"])
-app.include_router(telemetry_router, prefix="/api/v1/telemetry", tags=["Telemetry"])
 app.include_router(data_processing_router, prefix="/api/v1/data", tags=["Data Processing"])
+app.include_router(analytics_router, prefix="/api/v1/analytics", tags=["Analytics"])
+app.include_router(netmetrics_router, prefix="/api/v1/network", tags=["Network Metrics"])
+app.include_router(systemmetrics_router, prefix="/api/v1/system", tags=["System Metrics"])
+app.include_router(security_router, prefix="/api/v1/security", tags=["Security"])
+app.include_router(insights_router, prefix="/api/v1/insights", tags=["AI Insights"])
+app.include_router(grail_router, prefix="/api/v1/grail", tags=["Grail Observer"])
+app.include_router(notification_router, prefix="/api/v1/notifications", tags=["Notifications & Alerts"])
+app.include_router(integration_router, prefix="/api/v1/integrations", tags=["Integrations"])
+app.include_router(identity_router, prefix="/api/v1/identity", tags=["Identity Performance"])
+app.include_router(traffic_router, prefix="/api/v1/traffic", tags=["Traffic Performance"])
 app.include_router(testing_router, prefix="/api/v1/testing", tags=["Testing"])
 
 

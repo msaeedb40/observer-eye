@@ -3,122 +3,67 @@ import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 
 @Component({
-    selector: 'app-navbar',
-    standalone: true,
-    imports: [CommonModule, RouterModule],
-    template: `
-    <nav class="navbar">
-      <div class="navbar-brand">
-        <a routerLink="/dashboard" class="logo">
-          <span class="logo-icon">👁️</span>
-          <span class="logo-text">Observer-Eye</span>
+  selector: 'app-navbar',
+  standalone: true,
+  imports: [CommonModule, RouterModule],
+  template: `
+    <nav class="glass-panel mx-4 mt-4 px-6 h-16 flex items-center justify-between sticky top-4 z-[100] backdrop-blur-xl border-white/5">
+      <div class="flex items-center gap-8">
+        <a routerLink="/dashboard" class="flex items-center gap-2 no-underline group">
+          <span class="text-2xl group-hover:scale-110 transition-transform">👁️</span>
+          <span class="text-xl font-bold gradient-text">Observer-Eye</span>
         </a>
+
+        <div class="hidden lg:flex items-center gap-1">
+          <a routerLink="/metrics" routerLinkActive="active" class="nav-item">Metrics</a>
+          <a routerLink="/logs" routerLinkActive="active" class="nav-item">Logs</a>
+          <a routerLink="/traces" routerLinkActive="active" class="nav-item">Traces</a>
+          <a routerLink="/topology" routerLinkActive="active" class="nav-item">Topology</a>
+          <a routerLink="/insights" routerLinkActive="active" class="nav-item font-semibold text-sky-400">AI-Insights</a>
+        </div>
       </div>
       
-      <div class="navbar-menu">
-        <a routerLink="/metrics" routerLinkActive="active" class="nav-link">Metrics</a>
-        <a routerLink="/events" routerLinkActive="active" class="nav-link">Events</a>
-        <a routerLink="/logs" routerLinkActive="active" class="nav-link">Logs</a>
-        <a routerLink="/traces" routerLinkActive="active" class="nav-link">Traces</a>
-        <a routerLink="/apm" routerLinkActive="active" class="nav-link">APM</a>
-        <a routerLink="/alerts" routerLinkActive="active" class="nav-link">
-          Alerts
-          <span *ngIf="alertCount > 0" class="badge">{{ alertCount }}</span>
-        </a>
-      </div>
-      
-      <div class="navbar-actions">
-        <button class="btn-icon" title="Settings">⚙️</button>
-        <button class="btn-icon" title="User">👤</button>
+      <div class="flex items-center gap-4">
+        <div class="flex items-center gap-2 mr-4 border-r border-white/10 pr-4">
+          <a routerLink="/metrics/network" title="Network" class="nav-icon no-underline">🌐</a>
+          <a routerLink="/metrics/security" title="Security" class="nav-icon no-underline">🛡️</a>
+          <a routerLink="/metrics/system" title="System" class="nav-icon no-underline">🖥️</a>
+        </div>
+        
+        <button class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors border border-white/5">
+          <span class="text-xs font-bold">JD</span>
+        </button>
       </div>
     </nav>
   `,
-    styles: [`
-    .navbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 24px;
-      height: 60px;
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      position: sticky;
-      top: 0;
-      z-index: 100;
+  styles: [`
+    .nav-item {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border-radius: 12px;
+      transition: all 0.2s ease;
     }
-    
-    .navbar-brand .logo {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-      color: white;
+    .nav-item:hover {
+      color: var(--text-primary);
+      background: rgba(255, 255, 255, 0.05);
     }
-    
-    .logo-icon { font-size: 24px; }
-    .logo-text { 
-      font-size: 18px;
-      font-weight: 600;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+    .nav-item.active {
+      color: var(--accent-primary);
+      background: rgba(56, 189, 248, 0.1);
     }
-    
-    .navbar-menu {
-      display: flex;
-      gap: 4px;
-    }
-    
-    .nav-link {
-      padding: 8px 16px;
-      color: rgba(255,255,255,0.7);
-      text-decoration: none;
-      border-radius: 8px;
-      transition: all 0.2s;
-      position: relative;
-    }
-    
-    .nav-link:hover {
-      color: white;
-      background: rgba(255,255,255,0.1);
-    }
-    
-    .nav-link.active {
-      color: white;
-      background: rgba(102, 126, 234, 0.3);
-    }
-    
-    .badge {
-      position: absolute;
-      top: 2px;
-      right: 2px;
-      background: #ef4444;
-      color: white;
-      font-size: 10px;
-      padding: 2px 6px;
-      border-radius: 10px;
-    }
-    
-    .navbar-actions {
-      display: flex;
-      gap: 8px;
-    }
-    
-    .btn-icon {
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: rgba(255,255,255,0.1);
-      border-radius: 8px;
-      cursor: pointer;
+    .nav-icon {
+      font-size: 1.25rem;
+      opacity: 0.6;
       transition: all 0.2s;
     }
-    
-    .btn-icon:hover {
-      background: rgba(255,255,255,0.2);
+    .nav-icon:hover {
+      opacity: 1;
+      transform: translateY(-2px);
     }
   `]
 })
 export class NavbarComponent {
-    @Input() alertCount = 0;
+  @Input() alertCount = 0;
 }

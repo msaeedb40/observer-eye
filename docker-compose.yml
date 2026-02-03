@@ -61,6 +61,7 @@ services:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY:-change-me-in-production}
       - DJANGO_DEBUG=False
       - DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - DJANGO_SECURE_SSL_REDIRECT=False
       - CORS_ALLOWED_ORIGINS=http://localhost:80,http://localhost:8400,http://frontend:80
     depends_on:
       db:
@@ -73,8 +74,8 @@ services:
       start_period: 30s
     networks:
       - observer-network
-    expose:
-      - "8000"
+    ports:
+      - "8000:8000"
 
   # ==========================================================================
   # Middleware (FastAPI Logic Layer) - Port 8400
@@ -103,8 +104,8 @@ services:
       start_period: 10s
     networks:
       - observer-network
-    expose:
-      - "8400"
+    ports:
+      - "8400:8400"
 
   # ==========================================================================
   # Frontend (Angular Presentation Layer) - Port 80

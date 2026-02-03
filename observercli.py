@@ -17,6 +17,7 @@ Commands:
     logs     - Show logs from all containers
     shell    - Open a shell in a container
     health   - Check health of all service endpoints
+    telemetry - Start real-time telemetry generation
 """
 
 import subprocess
@@ -274,7 +275,7 @@ def cmd_health():
         ("Middleware API", "http://localhost:8400", "/health"),
         ("Middleware Docs", "http://localhost:8400", "/docs"),
         ("Backend Admin", "http://localhost:8000", "/admin/"),
-        ("Backend Health", "http://localhost:8000", "/api/core/health/"),
+        ("Backend Health", "http://localhost:8000", "/health/"),
     ]
     
     all_healthy = True
@@ -311,6 +312,16 @@ def cmd_health():
     else:
         print_warning("Some services are not healthy. Run './observercli.py logs' to investigate.")
 
+def cmd_telemetry():
+    """Start real-time telemetry generation in backend."""
+    print_header("Telemetry Generation")
+    print_info("Starting synthetic data generation...")
+    try:
+        # Run generator inside backend container
+        os.system("docker compose exec backend python telemetry_gen.py")
+    except KeyboardInterrupt:
+        print_info("Telemetry generation manually stopped.")
+
 def cmd_help():
     """Show help message."""
     print_header("Help")
@@ -339,6 +350,7 @@ COMMANDS = {
     "logs": cmd_logs,
     "shell": cmd_shell,
     "health": cmd_health,
+    "telemetry": cmd_telemetry,
     "help": cmd_help,
     "--help": cmd_help,
     "-h": cmd_help,

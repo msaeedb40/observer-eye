@@ -4,12 +4,11 @@
 
 // Navigation
 export * from './navbar/navbar.component';
-export * from './sidebar/sidebar.component';
 
 // Data Display
 export * from './data-table/data-table.component';
 export * from './metric-card/metric-card.component';
-export * from './chart/chart.component';
+export * from './charts/chart.component';
 
 // Feedback
 export * from './loading/loading.component';

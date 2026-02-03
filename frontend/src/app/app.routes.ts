@@ -43,6 +43,18 @@ export const routes: Routes = [
         loadComponent: () => import('./pages/metrics/metrics.component').then(m => m.MetricsComponent)
     },
     {
+        path: 'metrics/network',
+        loadComponent: () => import('./pages/network/network.component').then(m => m.NetworkComponent)
+    },
+    {
+        path: 'metrics/system',
+        loadComponent: () => import('./pages/system/system.component').then(m => m.SystemComponent)
+    },
+    {
+        path: 'metrics/security',
+        loadComponent: () => import('./pages/security/security.component').then(m => m.SecurityComponent)
+    },
+    {
         path: 'events',
         loadComponent: () => import('./pages/events/events.component').then(m => m.EventsComponent)
     },
@@ -53,6 +65,10 @@ export const routes: Routes = [
     {
         path: 'traces',
         loadComponent: () => import('./pages/traces/traces.component').then(m => m.TracesComponent)
+    },
+    {
+        path: 'topology',
+        loadComponent: () => import('./pages/topology/topology.component').then(m => m.TopologyComponent)
     },
 
     // Performance Monitoring
@@ -66,11 +82,31 @@ export const routes: Routes = [
         path: 'alerts',
         loadComponent: () => import('./pages/alerts/alerts.component').then(m => m.AlertsComponent)
     },
+    {
+        path: 'alerts/manage',
+        loadComponent: () => import('./pages/alerts-manage/alerts-manage.component').then(m => m.AlertsManageComponent)
+    },
+    {
+        path: 'integrations',
+        loadComponent: () => import('./pages/integrations/integrations.component').then(m => m.IntegrationsComponent)
+    },
+    {
+        path: 'identity',
+        loadComponent: () => import('./pages/identity/identity.component').then(m => m.IdentityComponent)
+    },
+    {
+        path: 'traffic',
+        loadComponent: () => import('./pages/traffic/traffic.component').then(m => m.TrafficComponent)
+    },
 
     // Settings
     {
         path: 'settings',
         loadComponent: () => import('./pages/settings/settings.component').then(m => m.SettingsComponent)
+    },
+    {
+        path: 'insights',
+        loadComponent: () => import('./pages/insights/insights.component').then(m => m.InsightsComponent)
     },
 
     // 404
