@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-worker
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.scaling.worker.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-worker
+  template:
+    metadata:
+      labels:
+        app: {{ include "observer-eye.name" . }}-worker
+    spec:
+      containers:
+      - name: worker
+        image: {{ .Values.images.middleware }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        command: ["celery", "-A", "telemetry.celery_tasks", "worker", "--loglevel=info", "-Q", "metrics,logs,traces,alerts,ml"]
+        envFrom:
+        - configMapRef:
+            name: {{ include "observer-eye.fullname" . }}-config
+        - secretRef:
+            name: {{ include "observer-eye.fullname" . }}-secrets
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-consumer
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.scaling.consumer.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-consumer
+  template:
+    metadata:
+      labels:
+        app: {{ include "observer-eye.name" . }}-consumer
+    spec:
+      containers:
+      - name: consumer
+        image: {{ .Values.images.middleware }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        command: ["python", "-m", "telemetry.kafka_consumer"]
+        envFrom:
+        - configMapRef:
+            name: {{ include "observer-eye.fullname" . }}-config
+        - secretRef:
+            name: {{ include "observer-eye.fullname" . }}-secrets

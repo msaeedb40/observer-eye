@@ -33,6 +33,35 @@ class InsightViewSet(viewsets.ModelViewSet):
         insight.save()
         return Response({'status': 'dismissed'})
 
+    @action(detail=False, methods=['get'])
+    def forecast(self, request):
+        """Generate forecast for a metric."""
+        metric = request.query_params.get('metric', 'cpu')
+        
+        # MOCK IMPLEMENTATION: Return predicted values
+        return Response({
+            'metric': metric,
+            'forecast': [
+                {'time': 'now+1h', 'value': 450, 'ci_lower': 400, 'ci_upper': 500},
+                {'time': 'now+2h', 'value': 480, 'ci_lower': 420, 'ci_upper': 540},
+                {'time': 'now+3h', 'value': 520, 'ci_lower': 450, 'ci_upper': 590},
+                {'time': 'now+4h', 'value': 410, 'ci_lower': 380, 'ci_upper': 440},
+            ]
+        })
+
+    @action(detail=False, methods=['post'])
+    def analyze_root_cause(self, request):
+        """Trigger AI root cause analysis."""
+        incident_id = request.data.get('incident_id')
+        
+        # MOCK MOCK IMPLEMENTATION
+        return Response({
+            'incident_id': incident_id,
+            'root_cause': 'Memory leak in payment-service caused cascading latency.',
+            'confidence': 0.89,
+            'evidence': ['OOMKilled events', 'High heap usage correlation']
+        })
+
 
 class AnomalyDetectionViewSet(viewsets.ModelViewSet):
     queryset = AnomalyDetection.objects.filter(is_active=True)

@@ -22,6 +22,9 @@ logging.basicConfig(
 )
 logger = logging.getLogger("observer_eye_middleware")
 
+# Set to keep references to background tasks to prevent GC
+background_tasks = set()
+
 
 # =============================================================================
 # APPLICATION LIFESPAN
@@ -31,8 +34,31 @@ logger = logging.getLogger("observer_eye_middleware")
 async def lifespan(app: FastAPI):
     """Application lifespan events."""
     logger.info("Observer-Eye Middleware starting up...")
+    
+    # Initialize Kafka Producer
+    try:
+        await get_kafka_producer()
+        logger.info("Kafka Producer initialized")
+    except Exception as e:
+        logger.error(f"Failed to initialize Kafka Producer: {e}")
+        
+    # Initialize Redis Stream Listener
+    try:
+        from streaming.router import manager
+        import asyncio
+        task = asyncio.create_task(manager.listen_to_redis())
+        background_tasks.add(task)
+        task.add_done_callback(background_tasks.discard)
+        logger.info("Redis Stream Listener started")
+    except Exception as e:
+        logger.error(f"Failed to start Redis Stream Listener: {e}")
+        
     yield
+    
+    # Shutdown Kafka Producer
     logger.info("Observer-Eye Middleware shutting down...")
+    await close_kafka_producer()
+    logger.info("Kafka Producer closed")
 
 
 # =============================================================================
@@ -101,17 +127,43 @@ async def health_check():
     return {
         "status": "healthy",
         "service": "observer-eye-middleware",
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "timestamp": time.time()
     }
 
 
 @app.get("/ready", tags=["Health"])
 async def readiness_check():
-    """Readiness check endpoint."""
+    """Readiness check endpoint with service dependency validation."""
+    import httpx
+    from caching.router import get_redis
+    
+    backend_status = False
+    cache_status = False
+    
+    # Check Backend
+    try:
+        async with httpx.AsyncClient(timeout=2.0) as client:
+            resp = await client.get(f"{BACKEND_URL}/health/")
+            backend_status = resp.status_code == 200
+    except Exception as e:
+        logger.error(f"Readiness check - Backend unreachable: {e}")
+    
+    # Check Cache
+    try:
+        r = get_redis()
+        await r.ping()
+        cache_status = True
+    except Exception as e:
+        logger.error(f"Readiness check - Cache unreachable: {e}")
+        
+    status = "ready" if backend_status and cache_status else "degraded"
+    
     return {
-        "status": "ready",
-        "backend_connected": True,
-        "cache_connected": True
+        "status": status,
+        "backend_connected": backend_status,
+        "cache_connected": cache_status,
+        "timestamp": time.time()
     }
 
 
@@ -136,6 +188,10 @@ from integration.router import router as integration_router
 from identity.router import router as identity_router
 from traffic.router import router as traffic_router
 from testing.router import router as testing_router
+from cloud.router import router as cloud_router
+from querier.router import router as querier_router
+from telemetry.router import router as telemetry_router
+from telemetry.kafka_producer import get_kafka_producer, close_kafka_producer
 
 # Include routers with prefixes
 app.include_router(performance_router, prefix="/api/v1/performance", tags=["Performance"])
@@ -153,7 +209,10 @@ app.include_router(notification_router, prefix="/api/v1/notifications", tags=["N
 app.include_router(integration_router, prefix="/api/v1/integrations", tags=["Integrations"])
 app.include_router(identity_router, prefix="/api/v1/identity", tags=["Identity Performance"])
 app.include_router(traffic_router, prefix="/api/v1/traffic", tags=["Traffic Performance"])
+app.include_router(cloud_router, prefix="/api/v1/cloud", tags=["Cloud Performance"])
 app.include_router(testing_router, prefix="/api/v1/testing", tags=["Testing"])
+app.include_router(querier_router, prefix="/api/v1/query", tags=["Query Engine"])
+app.include_router(telemetry_router, prefix="/api/v1/telemetry", tags=["Telemetry"])
 
 
 # =============================================================================

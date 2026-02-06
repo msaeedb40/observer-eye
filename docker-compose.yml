@@ -23,6 +23,8 @@ services:
       retries: 5
     networks:
       - observer-network
+    ports:
+      - "5432:5432"
 
   # ==========================================================================
   # Redis Cache
@@ -41,6 +43,40 @@ services:
       retries: 5
     networks:
       - observer-network
+
+  # ==========================================================================
+  # Zookeeper (For Kafka Coordination)
+  # ==========================================================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: observer-eye-zookeeper
+    restart: unless-stopped
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - observer-network
+
+  # ==========================================================================
+  # Kafka (Message Broker for High-Throughput Telemetry)
+  # ==========================================================================
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: observer-eye-kafka
+    restart: unless-stopped
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - observer-network
+    ports:
+      - "29092:29092"
 
   # ==========================================================================
   # Backend (Django Data Layer) - Port 8000
@@ -70,8 +106,8 @@ services:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health/')" ]
       interval: 30s
       timeout: 10s
-      retries: 3
-      start_period: 30s
+      retries: 10
+      start_period: 120s
     networks:
       - observer-network
     ports:
@@ -91,11 +127,16 @@ services:
       - REDIS_URL=redis://redis:6379/0
       - CORS_ORIGINS=http://localhost:80,http://frontend:80
       - DEBUG=false
+      - CELERY_BROKER=redis://redis:6379/1
+      - CELERY_BACKEND=redis://redis:6379/2
+      - KAFKA_BROKERS=kafka:9092
     depends_on:
       backend:
         condition: service_healthy
       redis:
         condition: service_healthy
+      kafka:
+        condition: service_started
     healthcheck:
       test: [ "CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8400/health')" ]
       interval: 30s
@@ -106,6 +147,58 @@ services:
       - observer-network
     ports:
       - "8400:8400"
+
+  # ==========================================================================
+  # Celery Worker (Async Task Processor)
+  # ==========================================================================
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.middleware
+    container_name: observer-eye-worker
+    restart: unless-stopped
+    command: celery -A telemetry.celery_tasks worker --loglevel=info -Q metrics,logs,traces,alerts,ml
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER=redis://redis:6379/1
+      - CELERY_BACKEND=redis://redis:6379/2
+      - KAFKA_BROKERS=kafka:9092
+      - DEBUG=false
+    depends_on:
+      backend:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_started
+    networks:
+      - observer-network
+
+  # ==========================================================================
+  # Kafka Consumer (Kafka -> Celery Bridge)
+  # ==========================================================================
+  consumer:
+    build:
+      context: .
+      dockerfile: Dockerfile.middleware
+    container_name: observer-eye-consumer
+    restart: unless-stopped
+    command: python -m telemetry.kafka_consumer
+    environment:
+      - BACKEND_URL=http://backend:8000
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER=redis://redis:6379/1
+      - CELERY_BACKEND=redis://redis:6379/2
+      - KAFKA_BROKERS=kafka:9092
+      - DEBUG=false
+    depends_on:
+      kafka:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - observer-network
 
   # ==========================================================================
   # Frontend (Angular Presentation Layer) - Port 80
@@ -120,7 +213,7 @@ services:
       middleware:
         condition: service_healthy
     healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:80/health" ]
+      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://127.0.0.1:80/health" ]
       interval: 30s
       timeout: 10s
       retries: 3

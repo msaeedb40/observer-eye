@@ -9,6 +9,10 @@ export * from './navbar/navbar.component';
 export * from './data-table/data-table.component';
 export * from './metric-card/metric-card.component';
 export * from './charts/chart.component';
+export * from './topology-graph/topology-graph.component';
+
+// Forms
+export * from './forms/form-component';
 
 // Feedback
 export * from './loading/loading.component';

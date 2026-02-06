@@ -1,0 +1,72 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-deny-all
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector: {}
+  policyTypes:
+  - Ingress
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-allow-frontend
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-frontend
+  ingress:
+  - from:
+    - namespaceSelector:
+        matchLabels:
+          kubernetes.io/metadata.name: {{ .Values.namespace }}
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-allow-middleware
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-middleware
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ include "observer-eye.name" . }}-frontend
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-allow-backend
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-backend
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ include "observer-eye.name" . }}-middleware
+    - podSelector:
+        matchLabels:
+          app: {{ include "observer-eye.name" . }}-worker
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-allow-db
+  namespace: {{ .Values.namespace }}
+spec:
+  podSelector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-db
+  ingress:
+  - from:
+    - podSelector:
+        matchLabels:
+          app: {{ include "observer-eye.name" . }}-backend

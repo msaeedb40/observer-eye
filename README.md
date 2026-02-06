@@ -2,16 +2,14 @@
 
 ## Overview
 
-Observer-Eye is a comprehensive observability platform built on a **3-layer architecture** and implementing the **4 pillars of observability**: Metrics, Events, Logs, and Traces.
+Observer-Eye is a high-fidelity, cloud-native observability platform built on a **3-layer architecture** and implementing the **4 pillars of observability**: Metrics, Events, Logs, and Traces.
 
-## Key Features
-
-- **Real-time Monitoring** - Track system health and performance in real-time
-- **Distributed Tracing** - End-to-end request tracing across services
-- **Log Aggregation** - Centralized log collection and search
-- **Metric Visualization** - Beautiful dashboards for metrics analysis
-- **Alert Management** - Configurable alerts with multiple notification channels
-- **Performance Monitoring** - APM for applications, systems, network, and security
+- **Cloud-Native Integration** - Optimized for 100% production-ready deployments on Kubernetes with Istio Service Mesh.
+- **Premium Bento Grid Dashboard** - High-density, responsive 12-column grid layout with Angular 21 Signals.
+- **Zero-Trust Security** - STRICT mTLS and OIDC-based Identity (Google, GitHub, GitLab) with organization domain enforcement.
+- **Zero-Mock Policy** - Strictly real-time telemetry datasets with no synthetic or sample data.
+- **Distributed Tracing** - End-to-end request tracing and span analysis.
+- **AI-Powered Insights** - Anomaly detection, health scoring, and predictive forecasting.
 
 ## Architecture
 
@@ -23,19 +21,19 @@ Observer-Eye is a comprehensive observability platform built on a **3-layer arch
 ┌─────────────────────────▼───────────────────────────────────┐
 │              Presentation Layer (Angular 21)                 │
 │                       Port 80                                │
-│  • Dashboard  • Metrics  • Logs  • Traces  • Alerts         │
+│  • Signals Reactivity • Bento UI • OIDC Auth • OnPush        │
 └─────────────────────────┬───────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────┐
-│              Logic Layer (FastAPI Middleware)                │
+│           Logic Layer (FastAPI / Istio Mesh)                 │
 │                      Port 8400                               │
-│  • Data Processing  • Caching  • Streaming  • Telemetry     │
+│  • DaemonSet Enrichment • mTLS • Gateway API • Telemetry    │
 └─────────────────────────┬───────────────────────────────────┘
                           │
 ┌─────────────────────────▼───────────────────────────────────┐
 │               Data Layer (Django Backend)                    │
 │                      Port 8000                               │
-│  • 19 Observer Apps  • REST APIs  • PostgreSQL              │
+│  • 28 Modular Apps • REST APIs • Zero-Mock Policy           │
 └─────────────────────────────────────────────────────────────┘
 ```
 

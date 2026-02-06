@@ -1,6 +1,6 @@
 """Settings serializers."""
 from rest_framework import serializers
-from .models import Setting, UserPreference, FeatureFlag
+from .models import Setting, UserPreference, FeatureFlag, WorkspaceSettings
 
 
 class SettingSerializer(serializers.ModelSerializer):
@@ -28,3 +28,10 @@ class FeatureFlagSerializer(serializers.ModelSerializer):
         model = FeatureFlag
         fields = '__all__'
         read_only_fields = ['id', 'created_at']
+
+
+class WorkspaceSettingsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WorkspaceSettings
+        fields = '__all__'
+        read_only_fields = ['id', 'created_at', 'slug']

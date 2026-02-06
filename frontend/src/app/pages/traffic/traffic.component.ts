@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartComponent } from '../../components';
+import { PerformanceService } from '../../services/performance.service';
 import { ChartConfiguration } from 'chart.js';
 
 @Component({
@@ -9,119 +10,79 @@ import { ChartConfiguration } from 'chart.js';
   imports: [CommonModule, ChartComponent],
   template: `
     <div class="observer-container page-transition">
-      <header class="mb-8 flex justify-between items-end">
-        <div>
-          <h1 class="text-4xl font-extrabold gradient-text mb-2">Traffic Explorer</h1>
-          <p class="text-slate-400">L7 Analysis, endpoint throughput, and regional payload distribution</p>
+      <header class="mb-8 p-8 glass-panel border-l-4 border-l-emerald-400 relative overflow-hidden">
+        <div class="relative z-10">
+          <h1 class="text-4xl font-extrabold gradient-text mb-2">Traffic Observer</h1>
+          <p class="text-slate-400">Layer 7 protocol analysis and request orchestration</p>
         </div>
-        <div class="glass-panel px-4 py-2 flex items-center gap-2">
-           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-           <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Live Flow</span>
+        <div class="absolute top-0 right-0 p-12 opacity-10 transform rotate-12">
+            <span class="text-9xl">⇄</span>
         </div>
       </header>
 
-      <div class="dashboard-grid mb-8">
-        <div class="glass-panel p-6 card-hover-effect">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Requests Per Second</h3>
+      <div class="bento-grid mb-8">
+        <!-- Request Rate Card - Span 4 -->
+        <div class="col-span-4 glass-panel p-6 card-hover-effect">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Request Rate</h3>
           <div class="flex items-baseline gap-2">
-            <div class="text-3xl font-bold text-sky-400">142.8</div>
-            <div class="text-[10px] font-bold text-slate-500 uppercase">req/s</div>
+              <div class="text-3xl font-bold text-white">{{ metrics?.requests_per_second || 0 }}</div>
+              <div class="text-sm text-slate-500 font-bold uppercase">RPS</div>
           </div>
-          <div class="mt-4 w-full h-8 opacity-30">
-             <app-chart [chartType]="'line'" [chartData]="sparklineData" [height]="'32px'"></app-chart>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-[10px] font-bold text-emerald-400">↑ 12% vs last hr</span>
+            <span class="text-[10px] text-slate-500 uppercase">Global Ingress</span>
           </div>
         </div>
-        <div class="glass-panel p-6 card-hover-effect">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Avg Payload Size</h3>
-          <div class="flex items-baseline gap-2">
-            <div class="text-3xl font-bold text-indigo-400">42.5</div>
-             <div class="text-[10px] font-bold text-slate-500 uppercase">KB</div>
-          </div>
-          <div class="mt-4 w-full h-8 opacity-30">
-             <app-chart [chartType]="'line'" [chartData]="sparklineData" [height]="'32px'"></app-chart>
-          </div>
-        </div>
-        <div class="glass-panel p-6 card-hover-effect border-l-4 border-l-rose-500">
-          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Error Rate (5xx)</h3>
-          <div class="flex items-baseline gap-2">
-            <div class="text-3xl font-bold text-rose-500">0.12</div>
-            <div class="text-[10px] font-bold text-slate-500 uppercase">%</div>
-          </div>
-          <p class="mt-4 text-[10px] text-rose-400 font-bold uppercase tracking-widest flex items-center gap-1">
-             <span class="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></span>
-             Awaiting Review
-          </p>
-        </div>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-        <div class="lg:col-span-2 glass-panel p-6">
+        <!-- Payload Card - Span 4 -->
+        <div class="col-span-4 glass-panel p-6 card-hover-effect">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Avg Payload Size</h3>
+          <div class="text-3xl font-bold text-white">{{ metrics?.avg_response_size_kb || 0 }} KB</div>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-[10px] font-bold text-sky-400">Stable</span>
+            <span class="text-[10px] text-slate-500 uppercase">JSON Dominant</span>
+          </div>
+        </div>
+
+        <!-- Error Rate Card - Span 4 -->
+        <div class="col-span-4 glass-panel p-6 card-hover-effect">
+          <h3 class="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4">Error Rate (5xx)</h3>
+          <div class="text-3xl font-bold text-rose-500">{{ (metrics?.http_5xx_rate * 100)?.toFixed(2) || 0 }}%</div>
+          <div class="mt-4 flex items-center justify-between">
+            <span class="text-[10px] font-bold text-rose-400">Threshold: 0.1%</span>
+            <span class="text-[10px] text-slate-500 uppercase">Critical metric</span>
+          </div>
+        </div>
+
+        <!-- Protocol Analysis Chart - Span 8 -->
+        <div class="col-span-8 glass-panel p-6 row-span-2">
           <h3 class="font-bold mb-6 flex items-center gap-2">
-             <span class="w-2 h-2 rounded-full bg-sky-400"></span>
-             L7 Protocol Distribution (Ops/sec)
+            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+            Protocol Distribution Over Time
           </h3>
-          <div class="h-[300px]">
+          <div class="h-80">
             <app-chart [chartType]="'bar'" [chartData]="protocolData"></app-chart>
           </div>
         </div>
-        <div class="glass-panel p-6">
-           <h3 class="font-bold mb-6 flex items-center gap-2">
-             <span class="w-2 h-2 rounded-full bg-indigo-400"></span>
-             Geographic Traffic
-          </h3>
-          <div class="space-y-4">
-            <div *ngFor="let region of regions" class="space-y-2">
-              <div class="flex justify-between text-xs">
-                <span class="text-slate-400 font-bold uppercase">{{region.name}}</span>
-                <span class="text-white font-mono">{{region.traffic}}%</span>
-              </div>
-              <div class="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-                <div class="h-full bg-indigo-500" [style.width.%]="region.traffic"></div>
-              </div>
-            </div>
-          </div>
-          <div class="mt-8 pt-8 border-t border-white/5">
-             <div class="flex items-center gap-4 p-4 rounded-xl bg-indigo-500/5 border border-indigo-500/10">
-                <div class="text-2xl">🌍</div>
-                <div>
-                   <p class="text-xs font-bold text-white">Dominant Region</p>
-                   <p class="text-[10px] text-slate-500 uppercase">US-EAST-1 (Northern Virginia)</p>
-                </div>
-             </div>
-          </div>
-        </div>
-      </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        <div class="glass-panel p-6">
-          <h3 class="text-lg font-bold text-white mb-6">Top Resource Endpoints</h3>
-          <div class="space-y-6">
-            <div *ngFor="let ep of topEndpoints" class="space-y-2">
-              <div class="flex justify-between items-center text-xs">
-                <code class="text-sky-400 bg-slate-900 border border-white/5 px-2 py-0.5 rounded">{{ep.path}}</code>
-                <span class="font-bold text-slate-300">{{ep.calls}} ops</span>
-              </div>
-              <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
-                <div class="h-full bg-gradient-to-r from-sky-500 to-indigo-500" [style.width.%]="ep.width"></div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="glass-panel p-6">
-          <h3 class="text-lg font-bold text-white mb-6">Active Traffic Bottlenecks</h3>
+        <!-- Bottlenecks List - Span 4 -->
+        <div class="col-span-4 glass-panel p-6 row-span-2 overflow-y-auto">
+          <h3 class="text-lg font-bold text-white mb-6">Active Bottlenecks</h3>
           <div class="space-y-4">
             <div *ngFor="let b of bottlenecks" class="p-4 rounded-xl bg-slate-900/50 border border-white/5 flex gap-4 card-hover-effect">
               <div class="mt-1 w-2 h-2 rounded-full shrink-0" 
                    [ngClass]="b.impact === 'High' ? 'bg-rose-500' : 'bg-amber-500'"></div>
               <div>
-                <h4 class="font-bold text-slate-200 text-sm mb-1">{{b.endpoint}}</h4>
-                <p class="text-xs text-slate-500 leading-relaxed">{{b.cause}}</p>
-                <div class="mt-2 text-[10px] font-bold uppercase tracking-widest" 
+                <h4 class="font-bold text-slate-200 text-sm mb-1 truncate w-40">{{b.endpoint}}</h4>
+                <p class="text-[10px] text-slate-500 leading-relaxed mb-2">{{b.cause}}</p>
+                <div class="text-[9px] font-bold uppercase tracking-widest" 
                      [ngClass]="b.impact === 'High' ? 'text-rose-400' : 'text-amber-400'">
                   {{b.impact}} Impact
                 </div>
               </div>
+            </div>
+            <div *ngIf="!bottlenecks?.length" class="p-8 text-center text-slate-600 italic text-sm">
+                No active bottlenecks detected
             </div>
           </div>
         </div>
@@ -133,6 +94,9 @@ import { ChartConfiguration } from 'chart.js';
   `]
 })
 export class TrafficComponent implements OnInit {
+  metrics: any = null;
+  analysis: any = null;
+
   topEndpoints = [
     { path: '/api/v1/telemetry', calls: '150k', width: 95 },
     { path: '/api/v1/auth/login', calls: '45k', width: 40 },
@@ -144,13 +108,6 @@ export class TrafficComponent implements OnInit {
     { endpoint: '/api/v1/users/search', cause: 'Missing index on email field in production schema', impact: 'Medium' }
   ];
 
-  regions = [
-    { name: 'N. Virginia (us-east-1)', traffic: 45 },
-    { name: 'Frankfurt (eu-central-1)', traffic: 28 },
-    { name: 'Tokyo (ap-northeast-1)', traffic: 15 },
-    { name: 'Ireland (eu-west-1)', traffic: 12 },
-  ];
-
   protocolData: ChartConfiguration['data'] = {
     datasets: [
       { data: [850, 720, 910, 680, 740, 800], label: 'HTTPS (REST)', backgroundColor: '#38bdf8' },
@@ -160,17 +117,29 @@ export class TrafficComponent implements OnInit {
     labels: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50']
   };
 
-  sparklineData: ChartConfiguration['data'] = {
-    datasets: [{
-      data: [42, 45, 43, 48, 47, 45, 46],
-      borderColor: '#38bdf8',
-      borderWidth: 2,
-      pointRadius: 0,
-      tension: 0.4,
-      fill: false
-    }],
-    labels: ['', '', '', '', '', '', '']
-  };
+  constructor(private readonly performanceService: PerformanceService) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.loadData();
+  }
+
+  loadData(): void {
+    this.performanceService.getTrafficMetrics().subscribe({
+      next: (data) => this.metrics = data,
+      error: (err) => console.error('Failed to load traffic metrics:', err)
+    });
+
+    this.performanceService.getTrafficAnalysis().subscribe({
+      next: (data) => {
+        this.analysis = data;
+        if (data?.bottlenecks) {
+          this.bottlenecks = data.bottlenecks;
+        }
+      },
+      error: (err) => {
+        console.error('Failed to load traffic analysis:', err);
+        this.analysis = { bottlenecks: this.bottlenecks };
+      }
+    });
+  }
 }

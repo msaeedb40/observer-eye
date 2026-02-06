@@ -4,8 +4,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import DashboardTemplate, TemplateInstance
-from .serializers import DashboardTemplateSerializer, DashboardTemplateListSerializer, TemplateInstanceSerializer
+from .models import DashboardTemplate, TemplateInstance, FeaturedTemplate, VariableCatalog
+from .serializers import (
+    DashboardTemplateSerializer, 
+    DashboardTemplateListSerializer, 
+    TemplateInstanceSerializer,
+    FeaturedTemplateSerializer,
+    VariableCatalogSerializer
+)
 
 
 class DashboardTemplateViewSet(viewsets.ModelViewSet):
@@ -45,3 +51,17 @@ class TemplateInstanceViewSet(viewsets.ModelViewSet):
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     filterset_fields = ['user_id', 'template']
     search_fields = ['name']
+
+class FeaturedTemplateViewSet(viewsets.ModelViewSet):
+    queryset = FeaturedTemplate.objects.all()
+    serializer_class = FeaturedTemplateSerializer
+    permission_classes = [AllowAny]
+    ordering = ['order']
+
+class VariableCatalogViewSet(viewsets.ModelViewSet):
+    queryset = VariableCatalog.objects.filter(is_active=True)
+    serializer_class = VariableCatalogSerializer
+    permission_classes = [AllowAny]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    filterset_fields = ['variable_type', 'is_global']
+    search_fields = ['name', 'description']

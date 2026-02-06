@@ -1,0 +1,249 @@
+{
+  "meta": {
+    "project": "Observer-Eye Observability Platform",
+    "date": "2026-02-06",
+    "prepared_by": "Automated PRD Generator"
+  },
+  "product_overview": "Observer-Eye is a comprehensive observability platform designed with a three-layer architecture (Presentation, Logic, Data) to ingest, analyze, and visualize metrics, logs, traces, and events, enabling enterprises to gain deep insights and predictive analytics on their system performance and security.",
+  "core_goals": [
+    "Implement a scalable and secure three-layer architecture: Presentation (Angular 21), Logic (FastAPI Middleware), Data (Django Backend).",
+    "Support the four pillars of observability: Metrics, Logs, Traces, and Events across the platform.",
+    "Ensure high security standards including robust password policies and OAuth integration with GitHub, GitLab, Google, and Microsoft.",
+    "Deliver modular, high-performance middleware with features like caching, streaming, telemetry, error handling, and CRUD operations.",
+    "Provide backend services covering analytics, APM, notifications, integrations, insights, and template dashboards.",
+    "Enable seamless integration between presentation, middleware, and backend layers with secure and performant APIs.",
+    "Support containerization via Docker with best practices and optimized build times.",
+    "Provide documentation covering architecture, features, business solutions, and cross-platform support."
+  ],
+  "key_features": [
+    "Comprehensive Observability Core API for ingesting and retrieving observability data (metrics, logs, traces, events).",
+    "Query Engine API supporting PromQL-like queries for flexible metrics querying.",
+    "AI-powered Insights API for anomaly detection and predictive analytics.",
+    "Notification API supporting multi-channel alert dispatch (email, Slack, etc.).",
+    "Dashboard Templates API to manage, import, and export visualization templates.",
+    "Analytics & Reporting API generating customizable reports in PDF and CSV formats.",
+    "Presentation layer with Angular 21 UI components including authentication (OAuth and password management), dashboards, and various UI services.",
+    "Middleware logic layer on FastAPI offering performance optimizations, data transformation/validation, caching, testing, streaming, telemetry, error handling, and exposing clean CRUD APIs.",
+    "Data layer backend built with Django managing various monitoring and performance modules (APM, security metrics, system metrics, network metrics, etc.).",
+    "Dockerized deployment with separate optimized Dockerfiles for backend, middleware, and frontend, along with docker-compose orchestration.",
+    "Comprehensive documentation: architecture, feature sets, business benefits, and cross-platform support."
+  ],
+  "user_flow_summary": [
+    "User accesses the Angular 21 presentation layer on port 80 to sign in using password or OAuth via GitHub, GitLab, Google, or Microsoft.",
+    "Upon authentication, users navigate dashboards, view observability data, and manage components and templates.",
+    "UI requests are routed to FastAPI middleware layer on port 8400 which handles business logic, data validation, caching, telemetry, and CRUD operations.",
+    "Middleware interacts with Django backend data layer APIs to ingest, query, and retrieve observability data spanning metrics, logs, traces, and events.",
+    "Users can execute PromQL-like queries via the Query Engine API and receive processed results for visualization.",
+    "Users receive anomaly detection insights and predictive alerts via the AI Insights API integrated into dashboards and notifications.",
+    "Alerts can be created and managed in the Notification API with dispatch via various channels.",
+    "Users can generate analytical reports in multiple formats through the Analytics & Reporting API.",
+    "Admins can manage dashboard templates, import and export them to customize user views.",
+    "All layers and services are containerized using Docker for easy deployment and scaling, ensuring security best practices."
+  ],
+  "validation_criteria": [
+    "End-to-end testing of user authentication flows including OAuth and password strength validations.",
+    "Successful ingestion and retrieval of metrics, logs, traces, and events through Core Observability API.",
+    "Accurate and performant execution of PromQL-like queries via Query Engine API.",
+    "Effective anomaly detection and predictive insights verified through AI Insights API outputs.",
+    "Reliable alert creation and dispatch through Notification API across configured channels.",
+    "Complete lifecycle management of dashboard templates with import/export functionalities.",
+    "Generation of analytics reports in requested formats (PDF, CSV) with correct data representation.",
+    "UI components render correctly and provide seamless navigation across dashboards and features.",
+    "Middleware layer performs data transformation, validation, caching, error handling, and CRUD operations reliably under load.",
+    "Docker containers build under 5 minutes each with security best practices, and docker-compose brings up all services as expected.",
+    "Comprehensive documentation is available covering architecture, technical features, business value, and supports all major platforms including Linux, macOS, and Windows."
+  ],
+  "code_summary": {
+    "tech_stack": [
+      "Python",
+      "Django",
+      "Django REST Framework",
+      "PostgreSQL",
+      "Docker"
+    ],
+    "features": [
+      {
+        "name": "Core Observability API",
+        "description": "Ingestion and retrieval of observability data including Metrics, Logs, Traces, and Events.",
+        "files": [
+          "backend/infra/core/models.py",
+          "backend/infra/core/views.py",
+          "backend/infra/core/serializers.py"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "info": {
+            "title": "Observer-Eye Core API",
+            "version": "1.0.0"
+          },
+          "paths": {
+            "/api/v1/core/metrics/": {
+              "get": {
+                "summary": "List metrics",
+                "parameters": [
+                  {
+                    "name": "name",
+                    "in": "query",
+                    "schema": {
+                      "type": "string"
+                    }
+                  },
+                  {
+                    "name": "source",
+                    "in": "query",
+                    "schema": {
+                      "type": "string"
+                    }
+                  }
+                ]
+              },
+              "post": {
+                "summary": "Ingest metric"
+              }
+            },
+            "/api/v1/core/logs/": {
+              "get": {
+                "summary": "List logs"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Query Engine API",
+        "description": "Execute PromQL-like queries for metrics and other data types.",
+        "files": [
+          "backend/infra/queriers/services/promql_parser.py",
+          "backend/infra/queriers/views.py",
+          "backend/infra/queriers/models.py"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/queriers/execute/": {
+              "post": {
+                "summary": "Execute PromQL query",
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "query": {
+                            "type": "string"
+                          },
+                          "time_range": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "AI Insights API",
+        "description": "Anomaly detection and predictive insights.",
+        "files": [
+          "backend/infra/insights_observer/services/anomaly_detection.py",
+          "backend/infra/insights_observer/views.py",
+          "backend/infra/insights_observer/models.py"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/insights/anomalies/": {
+              "get": {
+                "summary": "List detected anomalies"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Notification API",
+        "description": "Alert dispatching to multiple channels (Email, Slack, etc.).",
+        "files": [
+          "backend/infra/notification/services/dispatcher.py",
+          "backend/infra/notification/views.py",
+          "backend/infra/notification/models.py"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/notification/alerts/": {
+              "get": {
+                "summary": "List alerts"
+              },
+              "post": {
+                "summary": "Create alert"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Dashboard Templates API",
+        "description": "Manage, import, and export dashboard templates.",
+        "files": [
+          "backend/infra/template_dashboards/services/template_service.py",
+          "backend/infra/template_dashboards/views.py",
+          "backend/infra/template_dashboards/models.py"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/dashboards/templates/": {
+              "get": {
+                "summary": "List templates"
+              },
+              "post": {
+                "summary": "Create/Import template"
+              }
+            }
+          }
+        }
+      },
+      {
+        "name": "Analytics & Reporting API",
+        "description": "Generate reports (PDF/CSV) and analyze data.",
+        "files": [
+          "backend/infra/analytics/services/report_generator.py",
+          "backend/infra/analytics/views.py",
+          "backend/infra/analytics/models.py"
+        ],
+        "api_doc": {
+          "openapi": "3.0.0",
+          "paths": {
+            "/api/v1/analytics/reports/generate/": {
+              "post": {
+                "summary": "Generate report",
+                "requestBody": {
+                  "content": {
+                    "application/json": {
+                      "schema": {
+                        "type": "object",
+                        "properties": {
+                          "type": {
+                            "type": "string"
+                          },
+                          "format": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    ]
+  }
+}

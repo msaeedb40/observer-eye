@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-middleware
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-middleware
+  template:
+    metadata:
+      labels:
+        app: {{ include "observer-eye.name" . }}-middleware
+    spec:
+      containers:
+      - name: middleware
+        image: {{ .Values.images.middleware }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "observer-eye.fullname" . }}-config
+        - secretRef:
+            name: {{ include "observer-eye.fullname" . }}-secrets
+        ports:
+        - containerPort: 8400
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: middleware-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ include "observer-eye.name" . }}-middleware
+  ports:
+  - port: 8400
+    targetPort: 8400

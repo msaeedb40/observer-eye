@@ -4,8 +4,13 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
-from .models import Setting, UserPreference, FeatureFlag
-from .serializers import SettingSerializer, UserPreferenceSerializer, FeatureFlagSerializer
+from .models import Setting, UserPreference, FeatureFlag, WorkspaceSettings
+from .serializers import (
+    SettingSerializer, 
+    UserPreferenceSerializer, 
+    FeatureFlagSerializer,
+    WorkspaceSettingsSerializer
+)
 
 
 class SettingViewSet(viewsets.ModelViewSet):
@@ -43,10 +48,16 @@ class FeatureFlagViewSet(viewsets.ModelViewSet):
     filterset_fields = ['enabled']
     search_fields = ['name', 'description']
 
-    @action(detail=True, methods=['post'])
     def toggle(self, request, pk=None):
         """Toggle feature flag."""
         flag = self.get_object()
         flag.enabled = not flag.enabled
         flag.save()
         return Response({'enabled': flag.enabled})
+
+
+class WorkspaceSettingsViewSet(viewsets.ModelViewSet):
+    queryset = WorkspaceSettings.objects.filter(is_active=True)
+    serializer_class = WorkspaceSettingsSerializer
+    permission_classes = [AllowAny]
+    lookup_field = 'slug'

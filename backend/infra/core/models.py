@@ -21,7 +21,7 @@ class BaseModel(models.Model):
         on_delete=models.SET_NULL, 
         null=True, 
         blank=True,
-        related_name='%(class)s_created'
+        related_name='%(app_label)s_%(class)s_created'
     )
     is_active = models.BooleanField(default=True)
 
@@ -50,7 +50,7 @@ class Metric(BaseModel, ObservabilityMixin):
     Stores numerical measurements over time.
     """
     name = models.CharField(max_length=255, db_index=True)
-    value = models.FloatField()
+    value = models.FloatField(default=0.0, blank=True)
     unit = models.CharField(max_length=50, blank=True)
     metric_type = models.CharField(
         max_length=20,

@@ -18,7 +18,13 @@ import { CommonModule } from '@angular/common';
             <div class="w-12 h-12 rounded-2xl bg-white/5 flex items-center justify-center text-2xl">
               {{source.type === 'postgres' ? '🗄️' : '📈'}}
             </div>
-            <span class="px-3 py-1 bg-emerald-500/10 text-emerald-400 text-[10px] font-bold rounded-full uppercase tracking-wider border border-emerald-500/20">
+            <div *ngIf="source.status === 'testing...'" class="w-4 h-4 rounded-full border-2 border-slate-500 border-t-white animate-spin"></div>
+            <span *ngIf="source.status !== 'testing...'" class="px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-wider border"
+               [ngClass]="{
+                  'bg-emerald-500/10 text-emerald-400 border-emerald-500/20': source.status === 'connected',
+                  'bg-rose-500/10 text-rose-400 border-rose-500/20': source.status === 'error',
+                  'bg-slate-500/10 text-slate-400 border-slate-500/20': source.status === 'disconnected'
+               }">
               {{source.status}}
             </span>
           </div>
@@ -27,7 +33,12 @@ import { CommonModule } from '@angular/common';
           
           <div class="flex gap-3">
             <button class="flex-1 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs font-bold text-white transition-colors border border-white/5">Configure</button>
-            <button class="py-2 px-4 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-slate-400 border border-white/5">Test</button>
+            <button class="py-2 px-4 rounded-xl text-xs font-bold transition-colors border"
+                    [ngClass]="source.loading ? 'bg-slate-800 text-slate-500 border-slate-700 cursor-wait' : 'bg-white/5 hover:bg-white/10 text-white border-white/5'"
+                    (click)="testConnection(source)" 
+                    [disabled]="source.loading">
+                {{source.loading ? 'Testing...' : 'Test'}}
+            </button>
           </div>
         </div>
 
@@ -71,10 +82,27 @@ import { CommonModule } from '@angular/common';
 })
 export class IntegrationsComponent implements OnInit {
   dataSources = [
-    { name: 'Primary PostgreSQL', type: 'postgres', status: 'connected' },
-    { name: 'Identity Store', type: 'postgres', status: 'connected' },
-    { name: 'Prometheus Cluster', type: 'prometheus', status: 'connected' }
+    { name: 'Primary PostgreSQL', type: 'postgres', status: 'connected', loading: false },
+    { name: 'Identity Store', type: 'postgres', status: 'connected', loading: false },
+    { name: 'Prometheus Cluster', type: 'prometheus', status: 'connected', loading: false }
   ];
 
   ngOnInit(): void { }
+
+  testConnection(source: any) {
+    source.loading = true;
+    source.status = 'testing...';
+
+    // Simulate API delay
+    setTimeout(() => {
+      source.loading = false;
+      // Random success/fail for demo
+      const success = Math.random() > 0.3; // 70% success
+      if (success) {
+        source.status = 'connected';
+      } else {
+        source.status = 'error';
+      }
+    }, 1500);
+  }
 }

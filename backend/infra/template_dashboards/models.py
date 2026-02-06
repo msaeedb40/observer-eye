@@ -25,6 +25,7 @@ class DashboardTemplate(BaseModel):
     thumbnail = models.URLField(blank=True)
     
     # Template definition
+    content = models.JSONField(default=dict, blank=True)  # Generic content field for import/export
     layout = models.JSONField(default=dict)
     widgets = models.JSONField(default=list)  # List of widget definitions
     variables = models.JSONField(default=list, blank=True)  # Template variables
@@ -58,3 +59,34 @@ class TemplateInstance(BaseModel):
 
     def __str__(self):
         return f"{self.name} (from {self.template.name if self.template else 'N/A'})"
+
+class FeaturedTemplate(BaseModel):
+    """Curated list of promoted templates."""
+    template = models.OneToOneField(DashboardTemplate, on_delete=models.CASCADE, related_name='featured')
+    order = models.IntegerField(default=0)
+    promo_banner = models.URLField(blank=True)
+    
+    class Meta:
+        verbose_name = 'Featured Template'
+        verbose_name_plural = 'Featured Templates'
+        ordering = ['order']
+
+    def __str__(self):
+        return f"Featured: {self.template.name}"
+
+class VariableCatalog(BaseModel):
+    """Reusable template variables."""
+    name = models.CharField(max_length=100, unique=True)
+    description = models.TextField(blank=True)
+    
+    variable_type = models.CharField(max_length=50) # query, constant, interval
+    definition = models.JSONField(default=dict)
+    
+    is_global = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = 'Variable Catalog'
+        verbose_name_plural = 'Variable Catalogs'
+
+    def __str__(self):
+        return self.name

@@ -1,0 +1,41 @@
+# Default values for observer-eye.
+
+namespace: observer-eye
+
+images:
+  backend: observer-eye-backend:latest
+  middleware: observer-eye-middleware:latest
+  frontend: observer-eye-frontend:latest
+  pullPolicy: Never
+
+scaling:
+  backend:
+    replicas: 2
+  middleware:
+    daemonset: true
+  worker:
+    replicas: 3
+  consumer:
+    replicas: 2
+
+persistence:
+  storageClass: ""
+  postgres:
+    size: 5Gi
+  redis:
+    size: 1Gi
+
+config:
+  debug: "false"
+  djangoDebug: "False"
+  dbName: "observer_eye"
+  dbUser: "observer"
+
+istio:
+  enabled: true
+  injection: enabled
+  mtls: STRICT
+
+gateway:
+  enabled: true
+  className: istio

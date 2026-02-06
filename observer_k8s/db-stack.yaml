@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: db
+  namespace: observer-eye
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: db
+  template:
+    metadata:
+      labels:
+        app: db
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:16-alpine
+          envFrom:
+            - configMapRef:
+                name: observer-config
+            - secretRef:
+                name: observer-secrets
+          env:
+            - name: POSTGRES_DB
+              value: "observer_eye"
+            - name: POSTGRES_USER
+              value: "observer"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: postgres-data
+              mountPath: /var/lib/postgresql/data
+          healthCheck:
+            exec:
+              command: ["pg_isready", "-U", "observer", "-d", "observer_eye"]
+      volumes:
+        - name: postgres-data
+          persistentVolumeClaim:
+            claimName: postgres-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db-service
+  namespace: observer-eye
+spec:
+  selector:
+    app: db
+  ports:
+    - port: 5432
+      targetPort: 5432

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: observer-config
+  namespace: observer-eye
+data:
+  DB_ENGINE: "django.db.backends.postgresql"
+  DB_NAME: "observer_eye"
+  DB_HOST: "db-service"
+  DB_PORT: "5432"
+  DB_USER: "observer"
+  REDIS_URL: "redis://redis-service:6379/0"
+  CELERY_BROKER: "redis://redis-service:6379/1"
+  CELERY_BACKEND: "redis://redis-service:6379/2"
+  KAFKA_BROKERS: "kafka-service:9092"
+  BACKEND_URL: "http://backend-service:8000"
+  DEBUG: "false"
+  DJANGO_DEBUG: "False"
+  DJANGO_SECURE_SSL_REDIRECT: "False"

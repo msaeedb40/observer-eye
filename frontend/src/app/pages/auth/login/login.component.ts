@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,6 +21,12 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
         </div>
         
         <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-6 relative z-10">
+          @if (error) {
+            <div class="bg-red-500/10 border border-red-500/20 text-red-400 text-[10px] font-bold uppercase tracking-widest p-3 rounded-xl text-center">
+              {{ error }}
+            </div>
+          }
+          
           <div class="space-y-2">
             <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Email Address</label>
             <input 
@@ -43,8 +50,11 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
             />
           </div>
           
-          <button type="submit" class="btn-premium w-full py-3" [disabled]="!loginForm.valid">
-            Initialize Session
+          <button type="submit" class="btn-premium w-full py-3 flex items-center justify-center gap-2" [disabled]="!loginForm.valid || authService.isLoading()">
+            @if (authService.isLoading()) {
+              <span class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+            }
+            <span>Initialize Session</span>
           </button>
         </form>
         
@@ -77,21 +87,34 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  error: string | null = null;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    public authService: AuthService
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8)]]
+      password: ['', [Validators.required, Validators.minLength(16)]]
     });
   }
 
   onSubmit(): void {
     if (this.loginForm.valid) {
-      console.log('Login submitted:', this.loginForm.value);
+      this.error = null;
+      this.authService.login(this.loginForm.value).subscribe({
+        next: () => {
+          // AuthService handles navigation on success
+        },
+        error: (err) => {
+          this.error = 'Access Denied: Invalid Authorization Matrix';
+          console.error('Login failed:', err);
+        }
+      });
     }
   }
 
   loginWithOAuth(provider: string): void {
-    window.location.href = `/api/v1/auth/oauth/${provider}`;
+    this.authService.loginWithSocial(provider);
   }
 }

@@ -6,6 +6,7 @@ from rest_framework.permissions import AllowAny
 from django_filters.rest_framework import DjangoFilterBackend
 from django.utils import timezone
 from .models import NotificationChannel, AlertRule, Alert, NotificationHistory
+from .reliability import calculate_reliability_metrics
 from .serializers import NotificationChannelSerializer, AlertRuleSerializer, AlertSerializer, NotificationHistorySerializer
 
 
@@ -34,6 +35,28 @@ class AlertRuleViewSet(viewsets.ModelViewSet):
         rule.save()
         return Response({'enabled': rule.enabled})
 
+    @action(detail=True, methods=['post'])
+    def trigger_test(self, request, pk=None):
+        """Trigger a test alert for this rule."""
+        rule = self.get_object()
+        
+        # Create a test alert instance
+        alert = Alert.objects.create(
+            rule=rule,
+            name=f"[TEST] {rule.name}",
+            severity=rule.severity,
+            message=f"This is a test alert for rule '{rule.name}'. No action required.",
+            state='firing',
+            labels={'test': 'true'}
+        )
+        
+        return Response({
+            'status': 'triggered', 
+            'alert_id': alert.id,
+            'message': 'Test alert sent to configured channels.'
+        })
+
+
 
 class AlertViewSet(viewsets.ModelViewSet):
     queryset = Alert.objects.filter(is_active=True)
@@ -61,6 +84,12 @@ class AlertViewSet(viewsets.ModelViewSet):
         alert.resolved_at = timezone.now()
         alert.save()
         return Response({'status': 'resolved'})
+
+    @action(detail=False, methods=['get'])
+    def reliability(self, request):
+        """Get reliability metrics (MTTD, MTTR, MTTS)."""
+        metrics = calculate_reliability_metrics()
+        return Response(metrics)
 
 
 class NotificationHistoryViewSet(viewsets.ReadOnlyModelViewSet):

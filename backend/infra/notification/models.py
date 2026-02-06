@@ -73,8 +73,10 @@ class AlertRule(BaseModel):
 
 class Alert(BaseModel):
     """Triggered alert instance."""
-    rule = models.ForeignKey(AlertRule, on_delete=models.CASCADE, related_name='alerts')
+    rule = models.ForeignKey(AlertRule, on_delete=models.CASCADE, related_name='alerts', null=True, blank=True)
     name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    condition = models.CharField(max_length=500, blank=True)  # Allow direct condition on standalone alerts
     
     state = models.CharField(
         max_length=20,
@@ -87,10 +89,18 @@ class Alert(BaseModel):
         default='firing',
         db_index=True
     )
-    severity = models.CharField(max_length=20, db_index=True)
-    message = models.TextField()
+    severity = models.CharField(max_length=20, db_index=True, default='warning')
+    message = models.TextField(blank=True)
+    enabled = models.BooleanField(default=True)
+    
+    # Dispatch channels for standalone alerts
+    dispatch_channels = models.JSONField(default=list, blank=True)  # ["email", "slack"]
+    email_config = models.JSONField(default=dict, blank=True)
+    slack_config = models.JSONField(default=dict, blank=True)
     
     started_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    event_start_at = models.DateTimeField(null=True, blank=True, db_index=True)
+    acknowledged_at = models.DateTimeField(null=True, blank=True)
     resolved_at = models.DateTimeField(null=True, blank=True)
     acknowledged_by = models.CharField(max_length=255, blank=True)
     

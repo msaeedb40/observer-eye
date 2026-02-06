@@ -1,0 +1,22 @@
+{
+  "status": "commited",
+  "type": "backend",
+  "scope": "codebase",
+  "localEndpoint": "http://localhost:8000",
+  "backendAuthType": "public",
+  "executionArgs": {
+    "projectName": "observer-eye",
+    "projectPath": "/home/mbanabila/Documents/myprojects/observer-eye/backend/infra",
+    "testIds": [
+      "TC001",
+      "TC002",
+      "TC005"
+    ],
+    "additionalInstruction": "Verify that none of the returned data contains hardcoded or mock string values like ' nominal', 'sample', 'placeholder', or ' synthetic'. Also verify that the metrics list is initially empty or reflects actual fresh data since the platform was just purged.",
+    "envs": {
+      "API_KEY": "sk-user-SqMnxVV5Ze-scaJ68cXmGiEX9B1jBK1uw2E3GlW4syeFcJT-41-9avhXHhy6SdOoQGWY-U0JeWJT_73LQ-7LwDmZST2b0fTsVfuHB2Hu3xDBeL3VOf2VFe8kYPlZA8liYTs"
+    }
+  },
+  "serverPort": 43837,
+  "proxy": "http://c0c9035f-ddc5-4217-89f2-7aa220d7a657:0fW0laB0JmLG5biBq5QTkhEuDEQvJAah@tun.testsprite.com:8080"
+}

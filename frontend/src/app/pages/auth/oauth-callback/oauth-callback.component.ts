@@ -1,33 +1,48 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
-    selector: 'app-oauth-callback',
-    standalone: true,
-    imports: [CommonModule],
-    template: `
-    <div class="oauth-callback">
-      <div class="loading-spinner"></div>
-      <p>Authenticating with {{ provider }}...</p>
+  selector: 'app-oauth-callback',
+  standalone: true,
+  imports: [CommonModule],
+  template: `
+    <div class="observer-container flex items-center justify-center min-h-screen">
+      <div class="text-center space-y-4">
+        <div class="text-4xl animate-spin">👁️</div>
+        <p class="text-slate-400 font-bold uppercase tracking-widest text-xs">Syncing Identity Matrix...</p>
+      </div>
     </div>
-  `,
-    styles: [`
-    .oauth-callback { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: white; }
-    .loading-spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 1rem; }
-    @keyframes spin { to { transform: rotate(360deg); } }
-  `]
+  `
 })
 export class OAuthCallbackComponent implements OnInit {
-    provider = '';
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private authService: AuthService
+  ) { }
 
-    constructor(private route: ActivatedRoute, private router: Router) { }
+  ngOnInit(): void {
+    const provider = this.route.snapshot.paramMap.get('provider');
 
-    ngOnInit(): void {
-        this.provider = this.route.snapshot.params['provider'];
-        // Handle OAuth callback
-        setTimeout(() => {
-            this.router.navigate(['/dashboard']);
-        }, 2000);
-    }
+    // In a real flow, the middleware redirects back here with the token data
+    // For this implementation, we expect the middleware to redirect to this page 
+    // with the JWT info in the query params or fragment, or we fetch it from the middleware session.
+
+    this.route.queryParams.subscribe(params => {
+      if (params['access'] && params['refresh']) {
+        const authData = {
+          access: params['access'],
+          refresh: params['refresh'],
+          user: JSON.parse(params['user'] || '{}')
+        };
+        this.authService.handleOAuthCallback(authData);
+      } else {
+        // Fallback for error or missing params
+        console.error('OAuth sync failed');
+        this.router.navigate(['/auth/login']);
+      }
+    });
+  }
 }

@@ -11,10 +11,10 @@
 ┌──────────────────────────────────────────────────────────────────────┐
 │                    PRESENTATION LAYER (Port 80)                       │
 │  ┌─────────────────────────────────────────────────────────────────┐ │
-│  │                     Angular 21 Frontend                          │ │
-│  │  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐   │ │
-│  │  │Dashboard│ │ Metrics │ │  Logs   │ │ Traces  │ │ Alerts  │   │ │
-│  │  └─────────┘ └─────────┘ └─────────┘ └─────────┘ └─────────┘   │ │
+│  │         Angular 21 (Signals + Bento Grid)              │ │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐ │ │
+│  │  │ Dashboard│ │ Performance│ │  Alerts  │ │ Analytics│ │ Settings │ │ │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘ └──────────┘ │ │
 │  └─────────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────┬────────────────────────────────────┘
                                   │ HTTP/WebSocket
@@ -24,17 +24,19 @@
 │  ┌─────────────────────────────────────────────────────────────────┐ │
 │  │                   FastAPI Middleware                             │ │
 │  │  ┌───────────┐ ┌───────────┐ ┌───────────┐ ┌───────────┐       │ │
-│  │  │Performance│ │ Caching   │ │ Streaming │ │ Telemetry │       │ │
-│  │  └───────────┘ └───────────┘ └───────────┘ └───────────┘       │ │
-│  │  ┌───────────┐ ┌───────────┐ ┌───────────┐                     │ │
-│  │  │Data Proc. │ │Error Hand.│ │ Testing   │                     │ │
-│  │  └───────────┘ └───────────┘ └───────────┘                     │ │
-│  └─────────────────────────────────────────────────────────────────┘ │
-│                                  │                                    │
-│                           ┌──────┴──────┐                            │
-│                           │    Redis    │                            │
-│                           │   (Cache)   │                            │
-│                           └─────────────┘                            │
+│  │  │   Router  │ │ Enrichment│ │ Streaming │ │ Anomaly   │       │ │
+│  │  └─────┬─────┘ └─────┬─────┘ └───────────┘ └───────────┘       │ │
+│  └────────│─────────────│──────────────────────────────────────────┘ │
+│           ▼             ▼                                            │
+│  ┌───────────────────────────────┐      ┌─────────────────────────┐  │
+│  │      Kafka Message Bus        │ ──▶  │     Celery Workers      │  │
+│  │  (High-Throughput Ingestion)  │      │  (Async Processing)     │  │
+│  └───────────────────────────────┘      └────────────┬────────────┘  │
+│                                                      │               │
+│                                               ┌──────▼──────┐        │
+│                                               │    Redis    │        │
+│                                               │  (Broker)   │        │
+│                                               └─────────────┘        │
 └─────────────────────────────────┬────────────────────────────────────┘
                                   │ HTTP/REST
                                   ▼
@@ -43,11 +45,12 @@
 │  ┌─────────────────────────────────────────────────────────────────┐ │
 │  │                    Django Backend                                │ │
 │  │  ┌──────────────────────────────────────────────────────────┐   │ │
-│  │  │                    Observer Apps (19)                     │   │ │
-│  │  │  Metrics: appmetrics, netmetrics, systemmetrics, security │   │ │
-│  │  │  Performance: APM, identity, security, system, traffic    │   │ │
-│  │  │  Analytics: analytics, insights_observer                  │   │ │
-│  │  │  Platform: integration, notification, queriers, settings  │   │ │
+│  │  │                    Observer Apps (28)                     │   │ │
+│  │  │  Observability: appmetrics, netmetrics, systemmetrics      │   │ │
+│  │  │  Infrastructure: cloud, kubernetes, containers             │   │ │
+│  │  │  Security: securitymetrics, compliance, incidents          │   │ │
+│  │  │  Analytics: analytics, insights_observer, ai_engine        │   │ │
+│  │  │  Platform: integration, notification, settings             │   │ │
 │  │  └──────────────────────────────────────────────────────────┘   │ │
 │  └─────────────────────────────────────────────────────────────────┘ │
 │                                  │                                    │
@@ -62,12 +65,17 @@
 
 | Component | Technology | Purpose |
 |-----------|------------|---------|
-| Frontend | Angular 21 | User interface |
-| Middleware | FastAPI | API gateway, data processing |
-| Backend | Django + DRF | Business logic, data persistence |
-| Database | PostgreSQL 16 | Data storage |
-| Cache | Redis 7 | Performance optimization |
-| Container | Docker | Deployment |
+| Frontend | Angular 21 + Signals | Bento UI, Fine-grained reactivity, OnPush |
+| Mesh | Istio 1.22+ | mTLS, Sidecar injection, Zero-trust security |
+| Ingress | Gateway API | Traffic orchestration, TLS termination |
+| Identity | OIDC / JWT | Social Auth (Google, GitHub, GitLab), RBAC |
+| Middleware | FastAPI | DaemonSet-based enrichment, API Gateway |
+| Message Bus | Kafka | Real-time telemetry ingestion |
+| Task Queue | Celery | Predictive analytics, Async processing |
+| Backend | Django 5.x | Platform logic, Policy engine |
+| Database | PostgreSQL 16 | Relational persistence |
+| Cache | Redis 7 | Real-time caching & Celery broker |
+| Runtime | K8s + Docker | Production-grade orchestration |
 
 ## Data Flow
 

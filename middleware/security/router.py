@@ -5,17 +5,17 @@ from typing import List, Dict, Any
 
 router = APIRouter()
 
-BACKEND_URL = os.environ.get("BACKEND_URL", "http://backend:8000")
+BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
 @router.get("/threats")
 async def get_security_threats():
     """Get recent security threat events."""
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{BACKEND_URL}/api/securitymetrics/threatevent/?limit=20")
+            resp = await client.get(f"{BACKEND_URL}/api/v1/securitymetrics/threats/?limit=20")
             if resp.status_code != 200:
                 return {"threats": []}
-            return resp.json()
+            return resp.json().get('results', [])
     except Exception:
         return {"error": "security data unavailable"}
 
@@ -24,7 +24,7 @@ async def get_security_stats():
     """Get security metrics summary."""
     try:
         async with httpx.AsyncClient() as client:
-            resp = await client.get(f"{BACKEND_URL}/api/securitymetrics/securitymetric/?limit=10")
+            resp = await client.get(f"{BACKEND_URL}/api/v1/securitymetrics/security/?limit=10")
             if resp.status_code != 200:
                 return {"auth_failures": 0}
             

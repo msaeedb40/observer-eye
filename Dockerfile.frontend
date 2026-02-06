@@ -14,13 +14,13 @@ WORKDIR /app
 COPY frontend/package*.json ./
 
 # Install dependencies
-RUN npm install --legacy-peer-deps
+RUN npm  install
 
 # Copy source code
 COPY frontend/ .
 
 # Build the Angular application
-RUN npm run build -- --configuration production
+RUN npm run build -- --configuration=production
 
 # =============================================================================
 # Stage 2: Production (nginx)
@@ -107,7 +107,7 @@ EXPOSE 80
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:80/health || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:80/health || exit 1
 
 # Run nginx
 CMD ["nginx", "-g", "daemon off;"]

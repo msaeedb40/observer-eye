@@ -11,4 +11,5 @@ router.register(r'executions', views.QueryExecutionViewSet, basename='query-exec
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('execute/', views.QueryExecutionViewSet.as_view({'post': 'execute_promql'}), name='query-execute'),
 ]

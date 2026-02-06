@@ -8,7 +8,7 @@ import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
   standalone: true,
   imports: [CommonModule, NgChartsModule],
   template: `
-    <div class="chart-container" [style.height.px]="height">
+    <div class="chart-container" [style.height]="formatHeight(height)">
       <canvas
         baseChart
         [data]="chartData"
@@ -26,7 +26,7 @@ import { ChartConfiguration, ChartOptions, ChartType } from 'chart.js';
   `]
 })
 export class ChartComponent implements OnInit, OnDestroy {
-  @Input() height: number = 250;
+  @Input() height: number | string = 250;
   @Input() chartType: ChartType = 'line';
 
   @Input() chartData: ChartConfiguration['data'] = {
@@ -90,6 +90,10 @@ export class ChartComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void { }
+
+  formatHeight(h: number | string): string {
+    return typeof h === 'number' ? `${h}px` : h;
+  }
 
   public update(): void {
     this.chart?.update();

@@ -1,0 +1,33 @@
+{{- if .Values.gateway.enabled }}
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-gateway
+  namespace: {{ .Values.namespace }}
+spec:
+  gatewayClassName: {{ .Values.gateway.className }}
+  listeners:
+  - name: http
+    port: 80
+    protocol: HTTP
+    allowedRoutes:
+      namespaces:
+        from: Same
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-frontend-route
+  namespace: {{ .Values.namespace }}
+spec:
+  parentRefs:
+  - name: {{ include "observer-eye.fullname" . }}-gateway
+  rules:
+  - matches:
+    - path:
+        type: PathPrefix
+        value: /
+    backendRefs:
+    - name: {{ include "observer-eye.fullname" . }}-frontend
+      port: 80
+{{- end }}

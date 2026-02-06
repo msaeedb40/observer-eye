@@ -1,0 +1,144 @@
+{
+    "tech_stack": [
+        "Python",
+        "Django",
+        "Django REST Framework",
+        "PostgreSQL",
+        "Redis",
+        "Kafka",
+        "Celery",
+        "OpenTelemetry"
+    ],
+    "features": [
+        {
+            "name": "Core Metrics API",
+            "description": "REST API for Pillar 1 (Metrics). Supports ingestion and summary.",
+            "files": [
+                "core/views.py",
+                "core/urls.py",
+                "core/models.py"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Core Metrics API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/v1/core/metrics/": {
+                        "get": {
+                            "summary": "List metrics",
+                            "responses": {
+                                "200": {
+                                    "description": "List of metrics"
+                                }
+                            }
+                        },
+                        "post": {
+                            "summary": "Create metric",
+                            "responses": {
+                                "201": {
+                                    "description": "Created"
+                                }
+                            }
+                        }
+                    },
+                    "/api/v1/core/metrics/bulk_create/": {
+                        "post": {
+                            "summary": "Bulk create metrics",
+                            "responses": {
+                                "201": {
+                                    "description": "Created"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Core Events API",
+            "description": "REST API for Pillar 2 (Events).",
+            "files": [
+                "core/views.py",
+                "core/urls.py",
+                "core/models.py"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Core Events API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/v1/core/events/": {
+                        "get": {
+                            "summary": "List events",
+                            "responses": {
+                                "200": {
+                                    "description": "List of events"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Core Logs API",
+            "description": "REST API for Pillar 3 (Logs).",
+            "files": [
+                "core/views.py",
+                "core/urls.py",
+                "core/models.py"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Core Logs API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/v1/core/logs/": {
+                        "get": {
+                            "summary": "List log entries",
+                            "responses": {
+                                "200": {
+                                    "description": "List of logs"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        {
+            "name": "Core Traces API",
+            "description": "REST API for Pillar 4 (Traces).",
+            "files": [
+                "core/views.py",
+                "core/urls.py",
+                "core/models.py"
+            ],
+            "api_doc": {
+                "openapi": "3.0.0",
+                "info": {
+                    "title": "Core Traces API",
+                    "version": "1.0.0"
+                },
+                "paths": {
+                    "/api/v1/core/traces/": {
+                        "get": {
+                            "summary": "List traces",
+                            "responses": {
+                                "200": {
+                                    "description": "List of traces"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    ]
+}

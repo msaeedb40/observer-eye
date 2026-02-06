@@ -10,6 +10,7 @@ router.register(r'dashboards', views.DashboardViewSet, basename='dashboard')
 router.register(r'widgets', views.WidgetViewSet, basename='widget')
 router.register(r'reports', views.ReportViewSet, basename='report')
 router.register(r'queries', views.SavedQueryViewSet, basename='saved-query')
+router.register(r'stats', views.DashboardStatsView, basename='dashboard-stats')
 
 urlpatterns = [
     path('', include(router.urls)),

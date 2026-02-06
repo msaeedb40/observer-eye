@@ -7,5 +7,7 @@ pandas
 structlog
 scikit-learn
 opentelemetry-sdk
-opentelemetry-api 
+opentelemetry-api
 dash
+djangorestframework-simplejwt
+social-auth-app-django

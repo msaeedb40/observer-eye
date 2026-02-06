@@ -3,6 +3,7 @@ import { CommonModule, NgClass, NgIf } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { ChartComponent } from '../../components';
 import { ChartConfiguration, ChartType } from 'chart.js';
+import { DashboardService, DashboardStats } from '../../services/dashboard.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,11 +39,11 @@ import { ChartConfiguration, ChartType } from 'chart.js';
           <div class="flex flex-col h-full justify-between">
             <div class="flex justify-between items-start mb-4">
               <h3 class="text-slate-400 text-xs font-bold uppercase">Active Users</h3>
-              <span class="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">+12%</span>
+              <span class="px-2 py-1 rounded-md bg-emerald-500/10 text-emerald-400 text-[10px] font-bold">Live</span>
             </div>
             <div class="flex items-baseline gap-2">
               <div class="text-3xl font-bold tracking-tight">{{ activeUsers | number }}</div>
-              <div class="text-xs text-slate-500 font-medium">vs last hour</div>
+              <div class="text-xs text-slate-500 font-medium">unique sources (1h)</div>
             </div>
           </div>
         </div>
@@ -51,11 +52,11 @@ import { ChartConfiguration, ChartType } from 'chart.js';
           <div class="flex flex-col h-full justify-between">
             <div class="flex justify-between items-start mb-4">
               <h3 class="text-slate-400 text-xs font-bold uppercase">Request Rate</h3>
-              <span class="px-2 py-1 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-bold">Stable</span>
+              <span class="px-2 py-1 rounded-md bg-sky-500/10 text-sky-400 text-[10px] font-bold">Total</span>
             </div>
             <div class="flex items-baseline gap-2">
-              <div class="text-3xl font-bold tracking-tight">{{ requestRate | number }} ops/s</div>
-              <div class="text-xs text-slate-500 font-medium">across 12 nodes</div>
+              <div class="text-3xl font-bold tracking-tight">{{ requestRate | number }}</div>
+              <div class="text-xs text-slate-500 font-medium">processed traces</div>
             </div>
           </div>
         </div>
@@ -64,11 +65,11 @@ import { ChartConfiguration, ChartType } from 'chart.js';
           <div class="flex flex-col h-full justify-between">
             <div class="flex justify-between items-start mb-4">
               <h3 class="text-slate-400 text-xs font-bold uppercase">Error Rate</h3>
-              <span class="px-2 py-1 rounded-md bg-rose-500/10 text-rose-400 text-[10px] font-bold">-2% improvement</span>
+              <span class="px-2 py-1 rounded-md bg-rose-500/10 text-rose-400 text-[10px] font-bold">Global</span>
             </div>
             <div class="flex items-baseline gap-2">
               <div class="text-3xl font-bold tracking-tight">{{ errorRate }}%</div>
-              <div class="text-xs text-slate-500 font-medium">99.9% success rate</div>
+              <div class="text-xs text-slate-500 font-medium">of total traffic</div>
             </div>
           </div>
         </div>
@@ -105,12 +106,16 @@ import { ChartConfiguration, ChartType } from 'chart.js';
               <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse shadow-[0_0_8px_rgba(244,63,94,0.5)]"></span>
               <div>
                 <div class="font-bold text-sm">{{ anomaly.title }}</div>
-                <div class="text-[10px] text-slate-500">{{ anomaly.timestamp }}</div>
+                <div class="text-[10px] text-slate-500">{{ anomaly.timestamp }} • {{ anomaly.source }}</div>
               </div>
             </div>
             <button class="btn-premium py-1 px-4 text-xs font-bold rounded-lg border-white/5 bg-white/5 active:scale-95 group">
               Investigate <span class="group-hover:translate-x-1 transition-transform inline-block">→</span>
             </button>
+          </div>
+          
+          <div *ngIf="criticalAnomalies.length === 0" class="text-center text-slate-500 py-4">
+            No critical anomalies detected. System is healthy.
           </div>
         </div>
       </div>
@@ -125,16 +130,30 @@ import { ChartConfiguration, ChartType } from 'chart.js';
   `]
 })
 export class DashboardComponent implements OnInit {
-  healthScore = 94;
-  activeUsers = 12450;
-  requestRate = 840;
-  errorRate = 0.04;
+  healthScore = 0;
+  activeUsers = 0;
+  requestRate = 0;
+  errorRate = 0;
+  criticalAnomalies: any[] = [];
 
-  criticalAnomalies = [
-    { title: 'Spike in payment-service error rate (API-v1)', timestamp: '2 mins ago' },
-    { title: 'Auth-service latency degraded (Node-04)', timestamp: '7 mins ago' },
-    { title: 'Cross-region replication lag exceeded (DB-Main)', timestamp: '15 mins ago' }
-  ];
+  constructor(private dashboardService: DashboardService) { }
 
-  ngOnInit(): void { }
+  ngOnInit(): void {
+    this.fetchStats();
+    // Poll every 30 seconds
+    setInterval(() => this.fetchStats(), 30000);
+  }
+
+  fetchStats() {
+    this.dashboardService.getDashboardStats().subscribe({
+      next: (stats) => {
+        this.healthScore = stats.health_score;
+        this.activeUsers = stats.active_users;
+        this.requestRate = stats.request_rate;
+        this.errorRate = stats.error_rate;
+        this.criticalAnomalies = stats.critical_anomalies;
+      },
+      error: (err) => console.error('Failed to fetch dashboard stats', err)
+    });
+  }
 }

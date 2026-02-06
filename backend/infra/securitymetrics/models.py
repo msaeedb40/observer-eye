@@ -41,6 +41,13 @@ class SecurityMetric(BaseModel, ObservabilityMixin):
 
 class ThreatEvent(BaseModel, ObservabilityMixin):
     """Detected security threats."""
+    created_by = models.ForeignKey(
+        'auth.User',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='securitymetrics_threatevent_created'
+    )
     host = models.CharField(max_length=255, db_index=True)
     threat_type = models.CharField(max_length=100, db_index=True)
     severity = models.CharField(

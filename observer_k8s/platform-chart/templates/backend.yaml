@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "observer-eye.fullname" . }}-backend
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.scaling.backend.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "observer-eye.name" . }}-backend
+  template:
+    metadata:
+      labels:
+        app: {{ include "observer-eye.name" . }}-backend
+    spec:
+      containers:
+      - name: backend
+        image: {{ .Values.images.backend }}
+        imagePullPolicy: {{ .Values.images.pullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: {{ include "observer-eye.fullname" . }}-config
+        - secretRef:
+            name: {{ include "observer-eye.fullname" . }}-secrets
+        ports:
+        - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-service
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    app: {{ include "observer-eye.name" . }}-backend
+  ports:
+  - port: 8000
+    targetPort: 8000

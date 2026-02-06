@@ -1,0 +1,37 @@
+[
+  {
+    "id": "TC001",
+    "title": "verify_metric_ingestion_and_retrieval",
+    "description": "Test the ingestion of metrics via POST /api/v1/core/metrics/ and retrieval via GET /api/v1/core/metrics/ with query parameters for filtering by name and source."
+  },
+  {
+    "id": "TC002",
+    "title": "verify_log_listing_functionality",
+    "description": "Test the retrieval of logs via GET /api/v1/core/logs/ ensuring logs are returned correctly and support any expected filtering or pagination."
+  },
+  {
+    "id": "TC003",
+    "title": "verify_promql_query_execution",
+    "description": "Test the execution of PromQL-like queries via POST /api/v1/queriers/execute/ with valid and invalid query payloads and verify correct query results or error handling."
+  },
+  {
+    "id": "TC004",
+    "title": "verify_anomaly_detection_listing",
+    "description": "Test the retrieval of detected anomalies via GET /api/v1/insights/anomalies/ ensuring anomalies are listed correctly and response format is as expected."
+  },
+  {
+    "id": "TC005",
+    "title": "verify_alert_creation_and_listing",
+    "description": "Test the creation of alerts via POST /api/v1/notification/alerts/ and retrieval of alerts via GET /api/v1/notification/alerts/ verifying multi-channel dispatch configurations."
+  },
+  {
+    "id": "TC006",
+    "title": "verify_dashboard_template_management",
+    "description": "Test the listing of dashboard templates via GET /api/v1/dashboards/templates/ and creation/import of templates via POST /api/v1/dashboards/templates/ ensuring templates are managed correctly."
+  },
+  {
+    "id": "TC007",
+    "title": "verify_report_generation_functionality",
+    "description": "Test the generation of analytics reports via POST /api/v1/analytics/reports/generate/ with different report types and formats (PDF, CSV) and verify correct report content and format."
+  }
+]

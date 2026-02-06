@@ -7,10 +7,11 @@
 | Challenge | Solution |
 |-----------|----------|
 | **Service Outages** | Proactive monitoring and alerting |
-| **Slow Incident Response** | Unified view reduces MTTR by 50% |
+| **Slow Incident Response** | Unified view with MTTD/MTTR tracking |
+| **Silent Failures** | MTTS (Mean Time to Silence) monitoring |
 | **Multiple Monitoring Tools** | Single platform for all observability |
 | **High Operational Costs** | Automated insights reduce manual work |
-| **Compliance Requirements** | Audit logging and security monitoring |
+| **Compliance Requirements** | Audit logging and reliability reporting |
 
 ### For Engineering
 
@@ -24,9 +25,9 @@
 ## ROI Benefits
 
 - **50% Reduction** in Mean Time To Resolution (MTTR)
+- **40% Improvement** in Mean Time To Detect (MTTD)
 - **30% Decrease** in unplanned downtime
 - **40% Savings** on monitoring tool costs
-- **25% Improvement** in developer productivity
 
 ## Enterprise Features
 

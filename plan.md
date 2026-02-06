@@ -5,14 +5,14 @@ plan to build observer-eye observability platform :
    3. data layer 
 1.1. use 4 pillars of observability , metrics, events.logs.traces  and ensure its been use within platform
 
-2. deep dive technology stack for 3 layer with security best practices
+2. deep dive technology stack for 3 layer with security best practices  with following   system design  principles 
 
 3. under this architecture:
-   1. presentation layer angular 21  port 80
-   2. logic layer  middleware fastapi  port 8400 
-   3. data layer backend django 
-   4. no mock data , no seed data , no sample data , no demo
-
+   1. presentation layer: Angular 21, Port 80, Signals, Bento Grid
+   2. logic layer: Middleware FastAPI, Port 8400, K8s DaemonSet
+   3. data layer: Backend Django, PostgreSQL 16
+   4. **PROD DATA POLICY**: 100% real-time telemetry, No mock/seed/sample data allowed.
+3.1 compability with  mttr,mtts for platform  upto 90%   
    
 4. each layer : 
    1. presentation layer:
@@ -70,7 +70,16 @@ plan to build observer-eye observability platform :
        17. insights_observer + expand
        18. systemmetrics + expand
        19. system_performance_monitoring + expand
-
+       20. system 
+       21. application 
+       22. security
+       23. traffic
+       24. network
+       25. analytics
+       26. identity
+       27. logstash
+       28. cloud
+       29. cloud performance monitoring
 5. dependency:
     
     internet to dashboard to middleware to backend
@@ -93,3 +102,5 @@ plan to build observer-eye observability platform :
    5. whats it solves for business and enterprise
    6. technical and feature with their capabilites 
    7. support cross platform for linux,mac,widnows
+
+# kuberentes deployment for observer eye observability platform   

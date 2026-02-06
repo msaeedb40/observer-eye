@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -57,8 +58,11 @@ import { FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors }
           </div>
           
           <div class="pt-4">
-            <button type="submit" class="btn-premium w-full py-3" [disabled]="!registerForm.valid">
-              Provision Account
+            <button type="submit" class="btn-premium w-full py-3 flex items-center justify-center gap-2" [disabled]="!registerForm.valid">
+              @if (authService.isLoading()) {
+                <span class="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></span>
+              }
+              <span>Provision Account</span>
             </button>
           </div>
         </form>
@@ -81,11 +85,14 @@ export class RegisterComponent {
   hasSpecial = false;
   hasMinLength = false;
 
-  constructor(private fb: FormBuilder) {
+  constructor(
+    private fb: FormBuilder,
+    public authService: AuthService
+  ) {
     this.registerForm = this.fb.group({
       name: ['', [Validators.required]],
       email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator.bind(this)]],
+      password: ['', [Validators.required, Validators.minLength(16), this.passwordValidator.bind(this)]],
       confirmPassword: ['', [Validators.required]]
     }, { validators: this.matchPasswords });
 
@@ -106,7 +113,8 @@ export class RegisterComponent {
     const value = control.value;
     if (!value) return null;
     const hasAll = /[a-z]/.test(value) && /[A-Z]/.test(value) && /[0-9]/.test(value) && /[!@#$%^&*(),.?":{}|<>]/.test(value);
-    return hasAll ? null : { passwordStrength: true };
+    const isLongEnough = value.length >= 16;
+    return (hasAll && isLongEnough) ? null : { passwordStrength: true };
   }
 
   matchPasswords(group: AbstractControl): ValidationErrors | null {
@@ -117,7 +125,15 @@ export class RegisterComponent {
 
   onSubmit(): void {
     if (this.registerForm.valid) {
-      console.log('Register submitted:', this.registerForm.value);
+      this.authService.register(this.registerForm.value).subscribe({
+        next: () => {
+          // On success, redirect to login
+          window.alert('Account provisioned. Please authorize access.');
+        },
+        error: (err) => {
+          console.error('Registration failed:', err);
+        }
+      });
     }
   }
 }

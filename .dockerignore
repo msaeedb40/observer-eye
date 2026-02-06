@@ -19,10 +19,16 @@ __pycache__
 env/
 venv/
 .venv/
+*venv*/
 backend/infra/venv/
 backend/infra/.venv/
 middleware/venv/
 middleware/.venv/
+middleware/venv2/
+**/venv*/
+**/__pycache__/
+**/.pytest_cache/
+**/.angular/
 
 # Node
 node_modules/

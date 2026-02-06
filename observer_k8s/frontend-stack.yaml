@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  namespace: observer-eye
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+    spec:
+      containers:
+        - name: frontend
+          image: observer-eye-frontend:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 80
+          healthCheck:
+            httpGet:
+              path: /health
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 10
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: observer-eye
+spec:
+  selector:
+    app: frontend
+  ports:
+    - port: 80
+      targetPort: 80

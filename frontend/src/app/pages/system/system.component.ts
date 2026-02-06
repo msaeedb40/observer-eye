@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChartComponent } from '../../components';
 import { ChartConfiguration } from 'chart.js';
@@ -190,7 +190,7 @@ import { ChartConfiguration } from 'chart.js';
     th { letter-spacing: 0.05em; }
   `]
 })
-export class SystemComponent implements OnInit {
+export class SystemComponent {
   processes = [
     { pid: 1421, name: 'nginx: worker process', user: 'www-data', cpu: 12.4, mem: 4.2, io: '12KB/4KB', status: 'Running' },
     { pid: 3122, name: 'python manage.py runserver', user: 'observer', cpu: 8.1, mem: 15.6, io: '48KB/112KB', status: 'Running' },
@@ -236,5 +236,5 @@ export class SystemComponent implements OnInit {
     labels: ['', '', '', '', '', '', '']
   };
 
-  ngOnInit(): void { }
+  constructor() { }
 }

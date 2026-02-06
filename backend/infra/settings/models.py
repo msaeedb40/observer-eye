@@ -51,3 +51,25 @@ class FeatureFlag(BaseModel):
 
     def __str__(self):
         return f"{self.name} ({'enabled' if self.enabled else 'disabled'})"
+
+
+class WorkspaceSettings(BaseModel):
+    """Workspace-level settings (tenant/org)."""
+    name = models.CharField(max_length=255)
+    slug = models.SlugField(max_length=255, unique=True)
+    
+    # Quotas
+    total_metrics_limit = models.BigIntegerField(default=10000000)  # max data points
+    total_logs_limit_gb = models.FloatField(default=100.0)
+    retention_days = models.IntegerField(default=30)
+    
+    # Features
+    ai_enabled = models.BooleanField(default=True)
+    custom_dashboards_limit = models.IntegerField(default=50)
+    
+    class Meta:
+        verbose_name = 'Workspace Settings'
+        verbose_name_plural = 'Workspace Settings'
+
+    def __str__(self):
+        return self.name
